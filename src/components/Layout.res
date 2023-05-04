@@ -31,7 +31,7 @@ let make = (~children: Jsx.element) => {
         </ul>
       </nav>
     </header>
-    <main> {children} </main>
-    <footer> {"Rescript 한번 잡솨바!"->React.string} </footer>
+    <main className="h-[calc(100vh-200px)]"> {children} </main>
+    <footer className="bg-zinc-50 p-10"> {"Rescript 한번 잡솨바!"->React.string} </footer>
   </div>
 }
