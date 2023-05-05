@@ -3,5 +3,5 @@
   "sources": [{ "dir": "src", "subdirs": true }],
   "jsx": { "version": 4, "mode": "automatic" },
   "package-specs": [{ "module": "es6" }],
-  "bs-dependencies": ["@rescript/react"]
+  "bs-dependencies": ["@rescript/react", "rescript-struct"]
 }
