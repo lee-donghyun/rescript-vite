@@ -1,16 +1,16 @@
 open RescriptStruct
 
-let write = (state: 'a, struct: S.t<'a>, key) => {
-  try {
-    Dom.Storage2.localStorage->Dom.Storage2.setItem(key, struct->Json.serialize(state))
-  } catch {
-  | _ => ignore()
-  }
+let write = (state, struct, key) => {
+  ignore(
+    state
+    ->S.serializeToJsonWith(struct)
+    ->Belt.Result.map(json => Dom.Storage2.localStorage->Dom.Storage2.setItem(key, json)),
+  )
   state
 }
 let read = (default, struct: S.t<'a>, key) => {
-  switch Dom.Storage2.localStorage->Dom.Storage2.getItem(key) {
-  | Some(json) => struct->Json.parse(json, default)
-  | None => default
-  }
+  Dom.Storage2.localStorage
+  ->Dom.Storage2.getItem(key)
+  ->Belt.Option.flatMap(json => json->S.parseJsonWith(struct)->Bind.fromResult)
+  ->Belt.Option.getWithDefault(default)
 }
