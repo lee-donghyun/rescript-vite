@@ -8,7 +8,7 @@ let write = (state, struct, key) => {
   )
   state
 }
-let read = (default, struct: S.t<'a>, key) => {
+let read = (default, struct, key) => {
   Dom.Storage2.localStorage
   ->Dom.Storage2.getItem(key)
   ->Belt.Option.flatMap(json => json->S.parseJsonWith(struct)->Bind.fromResult)
