@@ -1,52 +1,22 @@
+open RescriptStruct
+
 type todo = {id: float, text: string, checked: bool}
 type state = {list: array<todo>}
 type action = Add | Delete(float) | Input(float, string) | Toggle(float, bool)
 
-module Json = {
-  open RescriptStruct
-  open Belt.Result
-  let stateStruct = S.object(v => {
-    list: v->S.field(
-      "list",
-      S.array(
-        S.object(v => {
-          id: v->S.field("id", S.float()),
-          text: v->S.field("text", S.string()),
-          checked: v->S.field("checked", S.bool()),
-        }),
-      ),
+let stateStruct = S.object(v => {
+  list: v->S.field(
+    "list",
+    S.array(
+      S.object(v => {
+        id: v->S.field("id", S.float()),
+        text: v->S.field("text", S.string()),
+        checked: v->S.field("checked", S.bool()),
+      }),
     ),
-  })
-  let serialize = state =>
-    switch state->S.serializeToJsonWith(stateStruct) {
-    | Ok(json) => json
-    | Error(_) => Js.Exn.raiseError("failed to serialize data")
-    }
-  let parse = (json, default) =>
-    switch json->S.parseJsonWith(stateStruct) {
-    | Ok(state) => state
-    | Error(_) => default
-    }
-}
-
-module Persist = {
-  let key = "todo_list"
-  let default = {list: []}
-  let write = state => {
-    try {
-      Dom.Storage2.localStorage->Dom.Storage2.setItem(key, Json.serialize(state))
-    } catch {
-    | _ => ignore()
-    }
-    state
-  }
-  let read = () => {
-    switch Dom.Storage2.localStorage->Dom.Storage2.getItem(key) {
-    | Some(json) => Json.parse(json, default)
-    | None => default
-    }
-  }
-}
+  ),
+})
+let persistKey = "todo_list"
 
 let reducer = (state, action) => {
   switch action {
@@ -68,12 +38,14 @@ let reducer = (state, action) => {
   | Toggle(id, checked) => {
       list: state.list->Js.Array2.map(todo => todo.id == id ? {...todo, checked} : todo),
     }
-  }->Persist.write
+  }->Persist.write(stateStruct, persistKey)
 }
 
 @react.component
 let make = () => {
-  let (state, dispatch) = React.useReducerWithMapState(reducer, (), () => Persist.read())
+  let (state, dispatch) = React.useReducerWithMapState(reducer, {list: []}, default =>
+    default->Persist.read(stateStruct, persistKey)
+  )
 
   <div className="p-10">
     <h1 className="text-xl p-5 rounded shadow-inner">
