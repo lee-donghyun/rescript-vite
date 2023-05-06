@@ -9,6 +9,10 @@ let routes = [
     path: "/todo",
     title: "투두리스트",
   },
+  {
+    path: "/daily-routine",
+    title: "데일리 루틴 체크",
+  },
 ]
 
 @react.component
@@ -31,7 +35,7 @@ let make = (~children: Jsx.element) => {
         </ul>
       </nav>
     </header>
-    <main className="h-[calc(100vh-200px)]"> {children} </main>
+    <main className="min-h-[calc(100vh-200px)]"> {children} </main>
     <footer className="bg-zinc-50 p-10"> {"Rescript 한번 잡솨바!"->React.string} </footer>
   </div>
 }
